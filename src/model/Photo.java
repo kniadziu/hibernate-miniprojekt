@@ -22,9 +22,39 @@ public class Photo implements java.io.Serializable{
     @Column
     private String date;
 
-    private Set<User> users = new HashSet<User>();
 
-    //GETTER AND SETTER
+
+    //tworzy tablice lacznikowa "photos_users"
+    @ManyToMany(cascade={CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+              name="photos_users",
+              joinColumns=@JoinColumn(name="photo_id"),
+              inverseJoinColumns=@JoinColumn(name="user_id")
+    )
+    private Set<User> usersLikes = new HashSet<User>();
+   // @ManyToMany(mappedBy="users", cascade={CascadeType.PERSIST, CascadeType.MERGE})
+
+    public void addLike(User user) {
+        usersLikes.add(user);
+    }
+
+    public void removeLike(User user) {
+        usersLikes.remove(user);
+    }
+
+
+
+    //KONSTRUKTOR
+
+    public Photo() {
+    }
+
+    public Photo(String name, String date) {
+        this.name = name;
+        this.date = date;
+    }
+
+//GETTER AND SETTER
 
 
     public long getId() {
@@ -51,33 +81,12 @@ public class Photo implements java.io.Serializable{
         this.date = date;
     }
 
-    public Set<User> getUsers() {
-        return users;
+
+    public Set<User> getUsersLikes() {
+        return usersLikes;
     }
 
-    public void setUsers(Set<User> users) {
-        this.users = users;
-    }
-
-    public void addUser(User user) {
-        users.add(user);
-    }
-
-    public void removeUser(User user) {
-        users.remove(user);
-    }
-
-
-    //TO STRING
-
-
-    @Override
-    public String toString() {
-        return "Photo{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", date='" + date + '\'' +
-                ", users=" + users +
-                '}';
+    public void setUsersLikes(Set<User> usersLikes) {
+        this.usersLikes = usersLikes;
     }
 }

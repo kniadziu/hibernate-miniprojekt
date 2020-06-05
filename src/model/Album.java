@@ -25,9 +25,17 @@ public class Album implements java.io.Serializable{
     @JoinColumn(name="album_id")
     private Set<Photo> photos = new HashSet<Photo>();
 
+   // KONSTRUKTOR
 
+    public Album() {
+    }
 
-    //GETTER AND SETTER
+    public Album(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
+
+//GETTER AND SETTER
 
     public long getId() {
         return id;
@@ -82,4 +90,3 @@ public class Album implements java.io.Serializable{
                 '}';
     }
 }
-ś

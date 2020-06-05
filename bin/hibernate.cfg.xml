@@ -9,10 +9,15 @@
 		<property name="dialect">SQLiteDialect</property>
 		<property name="connection.driver_class">org.sqlite.JDBC</property>
 		<property name="connection.url">jdbc:sqlite:database.db</property>
+		<property name="hibernate.hbm2ddl.auto">create</property>
+
 		<property name="connection.username"></property>
 		<property name="connection.password"></property>
 	
 		<!-- tu wstaw mapowania: <mapping class="NazwaKlasy"/> -->
-		
+		<mapping class="model.Album"/>
+		<mapping class="model.Photo"/>
+		<mapping class="model.User"/>
+
 	</session-factory>
 </hibernate-configuration>
