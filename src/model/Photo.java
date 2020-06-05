@@ -25,6 +25,8 @@ public class Photo implements java.io.Serializable{
 
 
     //tworzy tablice lacznikowa "photos_users"
+
+    //@ManyToMany(cascade={CascadeType.ALL}, fetch = FetchType.LAZY)
     @ManyToMany(cascade={CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
               name="photos_users",

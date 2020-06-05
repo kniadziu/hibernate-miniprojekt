@@ -38,6 +38,8 @@ public class User implements java.io.Serializable {
 
 
     // uzutkownik moze polubic uzytkownika
+  //  @JsonIgnore
+    //@ManyToMany(cascade={CascadeType.ALL}, fetch = FetchType.LAZY)
     @ManyToMany(cascade={CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name="user1_user2",
@@ -124,4 +126,11 @@ public class User implements java.io.Serializable {
         userFriends.remove(friend);
     }
 
+    public Set<Photo> getPhotosLiked() {
+        return photosLiked;
+    }
+
+    public void setPhotosLiked(Set<Photo> photosLiked) {
+        this.photosLiked = photosLiked;
+    }
 }
