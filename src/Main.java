@@ -4,6 +4,8 @@ import model.User;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import java.util.Set;
+
 public class Main {
 
 	Session session;
@@ -56,6 +58,9 @@ public class Main {
 		user3.addLikeForAlbum(album2);
 		photo2.addLike(user3);
 		photo3.addLike(user3);
+
+		//user 1 like user2
+		user1.addFriend(user2);
 
 
 		//zapis obiektow do bazy

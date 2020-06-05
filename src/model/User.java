@@ -37,6 +37,15 @@ public class User implements java.io.Serializable {
     private Set<Album> albums = new HashSet<Album>();
 
 
+    // uzutkownik moze polubic uzytkownika
+    @ManyToMany(cascade={CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name="user1_user2",
+            joinColumns=@JoinColumn(name="user1_id"),
+            inverseJoinColumns=@JoinColumn(name="user2_id")
+    )
+    private Set<User> userFriends = new HashSet<>();
+
     //KONSTRUKTOR
 
     public User() {
@@ -86,4 +95,33 @@ public class User implements java.io.Serializable {
     public void removeLikeForAlbum(Album album) {
         albums.remove(album);
     }
+
+    //user Likes another User
+
+
+    public Set<Album> getAlbums() {
+        return albums;
+    }
+
+    public void setAlbums(Set<Album> albums) {
+        this.albums = albums;
+    }
+
+    public Set<User> getUserFriends() {
+        return userFriends;
+    }
+
+    public void setUserFriends(Set<User> userFriends) {
+        this.userFriends = userFriends;
+    }
+
+
+    public void addFriend(User friend) {
+        userFriends.add(friend);
+    }
+
+    public void removeFriend(User friend) {
+        userFriends.remove(friend);
+    }
+
 }
