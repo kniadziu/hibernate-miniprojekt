@@ -13,7 +13,8 @@ import java.util.Set;
 public class Photo implements java.io.Serializable{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="photo_id")
     private long id;
 
     @Column
@@ -26,17 +27,26 @@ public class Photo implements java.io.Serializable{
 
     //tworzy tablice lacznikowa "photos_users"
 
-    //@ManyToMany(cascade={CascadeType.ALL}, fetch = FetchType.LAZY)
-    @ManyToMany(cascade={CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(
-              name="photos_users",
-              joinColumns=@JoinColumn(name="photo_id"),
-              inverseJoinColumns=@JoinColumn(name="user_id")
-    )
+   // @ManyToMany(cascade={CascadeType.ALL }, fetch = FetchType.LAZY)
+    //@ManyToMany(cascade={CascadeType.PERSIST, CascadeType.MERGE})
+
+   // )
+   @ManyToMany(fetch = FetchType.LAZY,
+           cascade={
+                   CascadeType.PERSIST,
+                   CascadeType.MERGE,
+                   CascadeType.REFRESH})
+   @JoinTable(name="user_photo",
+           joinColumns = @JoinColumn(name="photo_id"),
+           inverseJoinColumns = @JoinColumn(name="user_id"))
     private Set<User> usersLikes = new HashSet<User>();
    // @ManyToMany(mappedBy="users", cascade={CascadeType.PERSIST, CascadeType.MERGE})
 
     public void addLike(User user) {
+        if (user==null)
+        {
+            usersLikes= new HashSet<>();
+        }
         usersLikes.add(user);
     }
 

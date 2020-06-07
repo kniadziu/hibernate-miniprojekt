@@ -3,8 +3,10 @@ import model.Photo;
 import model.User;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
+import javax.persistence.EntityManager;
 import java.sql.SQLOutput;
 import java.util.List;
 import java.util.Set;
@@ -18,10 +20,12 @@ public class Main {
         // tu wstaw kod aplikacji
 
         main.addNewData();
-        //  main.removeLike(1,1);
         main.removePhotoAndLikes(1);
+        //  main.removeLike(1,1);
         // main.deleteUserFromDB("Nowak");
         ///koniec kodu
+
+
         main.close();
     }
 
@@ -51,24 +55,24 @@ public class Main {
 
 
         album1.addPhoto(photo1);
-        user1.addLikeForAlbum(album1);
+        //   user1.addLikeForAlbum(album1);
 
         photo1.addLike(user1);
-        user1.addLikeForPhoto(photo1);
+        // user1.addLikeForPhoto(photo1);
 
         user2.addLikeForAlbum(album2);
         album2.addPhoto(photo2);
         album2.addPhoto(photo3);
         photo3.addLike(user2);
-        user2.addLikeForPhoto(photo3);
+        // user2.addLikeForPhoto(photo3);
 
-        user3.addLikeForAlbum(album1);
-        user3.addLikeForAlbum(album2);
+        //  user3.addLikeForAlbum(album1);
+        //   user3.addLikeForAlbum(album2);
         photo2.addLike(user3);
         photo3.addLike(user3);
-        user3.addLikeForPhoto(photo3);
+        // user3.addLikeForPhoto(photo3);
         //user 1 like user2
-        //user1.addFriend(user2);
+        user1.addFriend(user2);
 
 
         //zapis obiektow do bazy
@@ -127,8 +131,10 @@ public class Main {
                     // System.out.println(p.getName());
                     u.removeLikeFromPhoto(p);
                     p.removeLike(u);
-                    session.save(p);
-                    session.save(u);
+                    session.persist(u);
+                    session.persist(p);
+//                    session.save(p);
+//                    session.save(u);
                 }
             }
         }
@@ -136,42 +142,55 @@ public class Main {
     }
 
 
-    public void removePhotoAndLikes(Integer photoId) {
-
-        Query query = session.createQuery("FROM Photo ph WHERE ph.id= :photoId");
-        query.setLong("photoId", photoId);
-
-        List<Photo> results = query.list();
-
-
-        Transaction transaction = session.beginTransaction();
-        for (Photo p : results) {
-
-            for (User u : p.getUsersLikes()) {
-                System.out.println(p.getId());
-                System.out.println(u.getUsername());
-                u.removeLikeFromPhoto(p);
-                p.removeLike(u);
-                session.save(u);
-                session.save(p);
-            }
-            session.save(p);
-            // session.delete(p);
-        }
+//    public void removePhotoAndLikes(Integer photoId) {
+//
+//        Query query = session.createQuery("FROM Photo ph WHERE ph.id= :photoId");
+//        query.setLong("photoId", photoId);
+//
+//        List<Photo> results = query.list();
+//
+//        Transaction transaction = session.beginTransaction();
+//        for (Photo p : results) {
+//
+//            for (User u : p.getUsersLikes()) {
+//                System.out.println(p.getName());
+//                System.out.println(u.getUsername());
+//                //  u.removeLikeFromPhoto(p);
+//                p.removeLike(u);
+//            }
+//
+//            session.delete(p);
+//        }
+//        transaction.commit();
+//
 
         // delete transaction
 //        int counter = 0;
 
 //        for (Object result : results) {
 //            session.delete(result);
-//            counter++;
+//           // counter++;
 //        }
 
 
 //        System.out.println("Usunieto rekordow:" + counter);
+
+
+  //  }
+
+
+    public void removePhotoAndLikes(long photoId) {
+        Transaction transaction = session.beginTransaction();
+        Query query = session.createQuery("FROM Album");
+
+        Photo photoObject = (Photo) session.get(Photo.class, photoId);
+        //usun Photo z Albumu najpierw
+        List<Album> results = query.list();
+        for (Album album : results) {
+            album.removePhoto(photoObject);
+        }
+        session.delete(photoObject);
         transaction.commit();
-
-
     }
 
 

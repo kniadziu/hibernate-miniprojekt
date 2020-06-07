@@ -1,8 +1,9 @@
 package model;
 
 import javax.persistence.*;
-import java.sql.Date;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 //CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, date TEXT, album_id BIGINT REFERENCES albums (id));
@@ -15,7 +16,8 @@ import java.util.Set;
 public class User implements java.io.Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="user_id")
     private long id;
 
     @Column
@@ -26,10 +28,14 @@ public class User implements java.io.Serializable {
 
 
 
-    @ManyToMany(
-            mappedBy="usersLikes",
-            cascade={CascadeType.PERSIST, CascadeType.MERGE})
-    private Set<Photo> photosLiked = new HashSet<Photo>();
+    @ManyToMany(fetch = FetchType.LAZY,
+            cascade={CascadeType.PERSIST,
+                    CascadeType.MERGE,
+                    CascadeType.REFRESH})
+    @JoinTable(name="user_photo",
+                joinColumns = @JoinColumn(name="user_id"),
+                inverseJoinColumns = @JoinColumn(name="photo_id"))
+    private List<Photo> photosLiked;// = new HashSet<Photo>();
 
 
     @OneToMany(cascade=CascadeType.ALL)
@@ -39,8 +45,8 @@ public class User implements java.io.Serializable {
 
     // uzutkownik moze polubic uzytkownika
   //  @JsonIgnore
-    //@ManyToMany(cascade={CascadeType.ALL}, fetch = FetchType.LAZY)
-    @ManyToMany(cascade={CascadeType.PERSIST, CascadeType.MERGE})
+   // @ManyToMany(cascade={CascadeType.ALL})
+    @ManyToMany(cascade={CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinTable(
             name="user1_user2",
             joinColumns=@JoinColumn(name="user1_id"),
@@ -78,6 +84,9 @@ public class User implements java.io.Serializable {
 
 
     public void addLikeForPhoto(Photo photo) {
+        if (photo==null){
+            photosLiked=new ArrayList<>();
+        }
         photosLiked.add(photo);
     }
 
@@ -126,11 +135,11 @@ public class User implements java.io.Serializable {
         userFriends.remove(friend);
     }
 
-    public Set<Photo> getPhotosLiked() {
+    public List<Photo> getPhotosLiked() {
         return photosLiked;
     }
 
-    public void setPhotosLiked(Set<Photo> photosLiked) {
+    public void setPhotosLiked(List<Photo> photosLiked) {
         this.photosLiked = photosLiked;
     }
 }
