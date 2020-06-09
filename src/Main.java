@@ -8,6 +8,7 @@ import org.hibernate.Transaction;
 
 import javax.persistence.EntityManager;
 import java.sql.SQLOutput;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -17,14 +18,25 @@ public class Main {
 
     public static void main(String[] args) {
         Main main = new Main();
-        // tu wstaw kod aplikacji
+        //UWAGA. strategia bazy zostala ustawiona na CREATE w hibernate.cfg.xml
 
-        main.addNewData();
-        main.removePhotoAndLikes(1);
-        //  main.removeLike(1,1);
-        // main.deleteUserFromDB("Nowak");
-        ///koniec kodu
+        // zaladuj przykladowe dane
+       main.addNewData();
+        main.addLiketoPhoto(1,1); //OK
+        main.addLiketoAlbum(1,1);
+        //4.1 usunięcie polubienia nie wpłynie na pozostałe elementy,
+       // main.removeLike(1,1); //OK
 
+        // 4.2 usunięcie zdjęcia usunie jego polubienia,ś
+       // main.removePhotoAndLikes(1);  //OK
+        //4.3 usunięcie albumu usunie zdjęcia w nim zawarte (wraz z konsekwencjami usunięcia zdjęcia),
+
+       // main.removeAlbumAndPhoto(1); //OK
+
+        // 4.4. usunięcie użytkownika usunie jego albumy (wraz z konsekwencjami usunięcia albumu) - OK.
+        // main.deleteUserFromDB(1); //OK
+        // 5.0 Dodoano mozliwosc polubienia nowego uzytkownika
+        main.giveLikeToUser(1,1);
 
         main.close();
     }
@@ -36,6 +48,46 @@ public class Main {
     public void close() {
         session.close();
         HibernateUtil.shutdown();
+    }
+
+    public void giveLikeToUser(long user1_Id, long user2_Id){
+        Transaction transaction = session.beginTransaction();
+        User userObject1 = (User) session.get(User.class, user1_Id);
+        User userObject2 = (User) session.get(User.class, user1_Id);
+        userObject1.addFriend(userObject2);
+
+        session.save(userObject1);
+        transaction.commit();
+    }
+
+    public void addLiketoPhoto(long userId, long photoId){
+        Transaction transaction = session.beginTransaction();
+        User userObject = (User) session.get(User.class, userId);
+        Photo photoObject = (Photo) session.get(Photo.class, photoId);
+        photoObject.addLike(userObject);
+      // userObject.addLikeForPhoto(photoObject);
+        session.save(photoObject);
+        transaction.commit();
+    }
+
+    public void addLiketoAlbum(long userId, long albumId){
+        Transaction transaction = session.beginTransaction();
+        User userObject = (User) session.get(User.class, userId);
+        Album albumObject = (Album) session.get(Album.class, albumId);
+        //albumObject.a(userObject);
+         userObject.addLikeForAlbum(albumObject);
+        session.save(userObject);
+        transaction.commit();
+    }
+
+    public void removeAlbumAndPhoto(long albumId){
+
+        Transaction transaction = session.beginTransaction();
+        //User userObject = (User) session.get(User.class, userId);
+        Album albumObject = (Album) session.get(Album.class, albumId);
+       // userObject.removeLikeForAlbum(albumObject); //usun z uzytkownika Album
+        session.delete(albumObject); //usun caly album
+        transaction.commit();
     }
 
     public void addNewData() {
@@ -54,91 +106,67 @@ public class Main {
         Album album2 = new Album("Wakacje", "Wakacje 2020");
 
 
-        album1.addPhoto(photo1);
-        //   user1.addLikeForAlbum(album1);
+        album1.getPhotos().add(photo1);
+        album1.addPhoto(photo2);
 
-        photo1.addLike(user1);
+        album2.getPhotos().add(photo3);
+        album2.addPhoto(photo4);
+
+
+      //  user1.getAlbums().add(album1); //ok
+       //user1.getAlbums().remove(album1); //ok
+     //  photo1.addLike(user3);
         // user1.addLikeForPhoto(photo1);
 
-        user2.addLikeForAlbum(album2);
-        album2.addPhoto(photo2);
-        album2.addPhoto(photo3);
-        photo3.addLike(user2);
+//        user2.addLikeForAlbum(album2);
+//        album2.addPhoto(photo3);
+//        album2.addPhoto(photo4);
+       // photo3.addLike(user2);
         // user2.addLikeForPhoto(photo3);
 
         //  user3.addLikeForAlbum(album1);
         //   user3.addLikeForAlbum(album2);
-        photo2.addLike(user3);
-        photo3.addLike(user3);
+//        photo2.addLike(user3);
+//        photo3.addLike(user3);
         // user3.addLikeForPhoto(photo3);
         //user 1 like user2
-        user1.addFriend(user2);
+     //   user1.addFriend(user2);
 
 
         //zapis obiektow do bazy
         Transaction transaction = session.beginTransaction();
-        session.save(user1); // gdzie user1 to instancja nowego Usera
-        session.save(user2);
-        session.save(user3);
+        session.save(user1); // najpierw rodzic
+        session.save(user2); // najpierw rodzic
+        session.save(album1); //dziecko po rodzicu
+        session.save(album2); //dziecko po rodzicu
+//        session.save(user2);
+//        session.save(user3);
         transaction.commit();
 
 
     }
-
     //usuwa uzytkownika i wszystkie jego albumy
-    public void deleteUserFromDB(String userToDelete) {
-        Query query = session.createQuery("FROM User u WHERE u.username = :nameToDelete");
-        query.setString("nameToDelete", userToDelete);
+    public void deleteUserFromDB(long userToDelete) {
 
-        List<User> results = query.list();
-//		for(User u : results){
-//			System.out.println(u.getUsername());
-//		}
-
+        User userObject = (User) session.get(User.class, userToDelete);
+        session.delete(userObject);
         Transaction transaction = session.beginTransaction();
-        if (results.size() > 0) {
-            for (User user : results) {
-                int i = user.getPhotosLiked().size();
-                if (i > 0) {
-                    for (Photo photo : user.getPhotosLiked()) {
-                        user.removeLikeFromPhoto(photo);
-                        // session.delete(photo);
-                        //session.save(photo);
-                    }
-                }
-
-                session.delete(user);
-                session.save(user);
-            }
-            transaction.commit();
+        transaction.commit();
         }
 
-    }
 
-    public void removeLike(Integer userId, Integer photoId) {
 
-        Query query = session.createQuery("FROM User u WHERE u.id= :userId");
-        query.setInteger("userId", userId);
+    public void removeLike(long userId, long photoId) {
 
-        List<User> results = query.list();
-
+        User userObject = (User) session.get(User.class, userId);
+        Photo photoObject = (Photo) session.get(Photo.class, photoId);
+        System.out.println(userObject.getUsername());
+        System.out.println(photoObject.getName());
 
         Transaction transaction = session.beginTransaction();
-        for (User u : results) {
-            System.out.println(u.getUsername());
-            for (Photo p : u.getPhotosLiked()) {
-                if (p.getId() == photoId) {
-                    // System.out.println(p.getName());
-                    u.removeLikeFromPhoto(p);
-                    p.removeLike(u);
-                    session.persist(u);
-                    session.persist(p);
-//                    session.save(p);
-//                    session.save(u);
-                }
-            }
-        }
-
+        //userObject.removeLikeFromPhoto(photoObject);
+        photoObject.removeLike(userObject);
+        transaction.commit();
     }
 
 

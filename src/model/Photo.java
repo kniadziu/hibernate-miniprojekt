@@ -13,7 +13,7 @@ import java.util.Set;
 public class Photo implements java.io.Serializable{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name="photo_id")
     private long id;
 
@@ -23,7 +23,9 @@ public class Photo implements java.io.Serializable{
     @Column
     private String date;
 
-
+//    @Lob
+//    @Column(name="PHOTO_IMAGE", nullable=false, columnDefinition="mediumblob")
+//    private byte[] image;
 
     //tworzy tablice lacznikowa "photos_users"
 
@@ -101,4 +103,17 @@ public class Photo implements java.io.Serializable{
     public void setUsersLikes(Set<User> usersLikes) {
         this.usersLikes = usersLikes;
     }
+
+
+    //get i set do photo BLOB
+
+//    public byte[] getImage() {
+//        return image;
+//    }
+//
+//    public void setImage(byte[] image) {
+//        this.image = image;
+//    }
+
+
 }

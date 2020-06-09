@@ -7,6 +7,7 @@ import java.util.Set;
 //CREATE TABLE albums (id INTEGER PRIMARY KEY, name TEXT, description TEXT);
 //INSERT INTO albums (id, name, description) VALUES (1, "Przyroda", "Kwiaty");
 //INSERT INTO albums (id, name, description) VALUES (2, "Muzyka", "Koncert");
+
 @Entity
 @Table(name="albums")
 public class Album implements java.io.Serializable{
@@ -22,7 +23,7 @@ public class Album implements java.io.Serializable{
     private String description;
 
     @OneToMany(cascade=CascadeType.ALL)
-    @JoinColumn(name="album_id")
+    @JoinColumn(name="album_id", nullable=true)
     private Set<Photo> photos = new HashSet<Photo>();
 
    // KONSTRUKTOR

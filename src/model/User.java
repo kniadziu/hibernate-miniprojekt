@@ -16,7 +16,7 @@ import java.util.Set;
 public class User implements java.io.Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name="user_id")
     private long id;
 
@@ -94,6 +94,7 @@ public class User implements java.io.Serializable {
     public void removeLikeFromPhoto(Photo photo) {
         photosLiked.remove(photo);
     }
+
 
 
     //ALBMUMS
