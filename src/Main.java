@@ -36,7 +36,8 @@ public class Main {
         // 4.4. usunięcie użytkownika usunie jego albumy (wraz z konsekwencjami usunięcia albumu) - OK.
         // main.deleteUserFromDB(1); //OK
         // 5.0 Dodoano mozliwosc polubienia nowego uzytkownika
-        main.giveLikeToUser(1,1);
+        main.giveLikeToUser(1,2);
+       // main.addLikeToPhotoIfYouLikeUser(1,1);
 
         main.close();
     }
@@ -50,15 +51,32 @@ public class Main {
         HibernateUtil.shutdown();
     }
 
+//    public void addLikeToPhotoIfYouLikeUser(long photoId, long user_id){
+//        //pobierz user_id
+//        //select * from albums a inner join photos p on a.id=p.album_id Where photo_id=1
+//        Query query = session.createQuery(
+//                "from photo a inner join  p.album");
+//       // query.setLong("photoId",photoId);
+//      //  User resultUser = (User) query.list();
+//       // List<Photo> results = query.list();
+//
+//        //System.out.println(resultUser.getUsername());
+//        //select  *  FROM user1_user2 where user2_id=1
+//
+//        //sprawdz, czy libisz uzytkownika. jesli tak to
+//    }
+
     public void giveLikeToUser(long user1_Id, long user2_Id){
         Transaction transaction = session.beginTransaction();
         User userObject1 = (User) session.get(User.class, user1_Id);
-        User userObject2 = (User) session.get(User.class, user1_Id);
+        User userObject2 = (User) session.get(User.class, user2_Id);
         userObject1.addFriend(userObject2);
 
         session.save(userObject1);
         transaction.commit();
     }
+
+
 
     public void addLiketoPhoto(long userId, long photoId){
         Transaction transaction = session.beginTransaction();
